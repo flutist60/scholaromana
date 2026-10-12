@@ -1,0 +1,21 @@
+---
+import Base from '../layouts/Base.astro';
+import Blocks from '../components/Blocks.astro';
+import Lightbox from '../components/Lightbox.astro';
+import type { CollectionEntry } from 'astro:content';
+import type { Lang } from '../data/site';
+
+interface Props { entry: CollectionEntry<'pages'>; lang: Lang }
+const { entry, lang } = Astro.props;
+const d = entry.data;
+---
+<Base lang={lang} title={d.seoTitle ?? d.title} description={d.description}>
+  <article class={`page page-${d.layout}`}>
+    <Blocks blocks={d.blocks} lang={lang} body={entry.rendered?.html ?? ''} />
+  </article>
+  <Lightbox />
+</Base>
+<style>
+  .page { padding-bottom: 40px; }
+  .page-reviews, .page-bio { padding-bottom: 0; }
+</style>

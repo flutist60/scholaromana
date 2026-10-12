@@ -1,0 +1,8 @@
+---
+import BlogList from '../../../../views/BlogList.astro';
+export function getStaticPaths() {
+  return [{ params: { cat: 'early-music' } }, { params: { cat: 'contemporary-music' } }];
+}
+const { cat } = Astro.params;
+---
+<BlogList lang="it" category={cat as any} />

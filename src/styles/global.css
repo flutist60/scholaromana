@@ -1,0 +1,121 @@
+@import '@fontsource/raleway/400.css';
+@import '@fontsource/raleway/400-italic.css';
+@import '@fontsource/raleway/600.css';
+@import '@fontsource/raleway/700.css';
+@import '@fontsource/raleway/700-italic.css';
+@import '@fontsource/poiret-one/400.css';
+
+:root {
+  --red: #8b0000;
+  --red-card: rgba(139, 0, 0, 0.92);
+  --accent: #cc434f;
+  --ink: #313131;
+  --gray: #616161;
+  --dark: #2e2e2e;
+  --black: #000;
+  --white: #fff;
+  --paper: #ffffff;
+  --display: 'Poiret One', 'Marzo', 'Raleway', sans-serif;
+  --text: 'Raleway', 'Helvetica Neue', Arial, sans-serif;
+  --mono: 'Courier New', Courier, monospace;
+  --wrap: 980px;
+  --gutter: 16px;
+}
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--text);
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+img { max-width: 100%; height: auto; display: block; }
+a { color: inherit; }
+p { margin: 0 0 1em; }
+p:last-child { margin-bottom: 0; }
+strong, b { font-weight: 700; }
+
+.wrap {
+  width: 100%;
+  max-width: calc(var(--wrap) + 2 * var(--gutter));
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.display {
+  font-family: var(--display);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  line-height: 1.15;
+  margin: 0;
+}
+
+.mono { font-family: var(--mono); font-size: 14px; }
+.mono.red, .red { color: var(--accent); }
+
+/* ---------- Buttons ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 235px;
+  min-height: 40px;
+  padding: 8px 24px;
+  background: var(--red);
+  color: #fff;
+  border: 1px solid var(--red);
+  font: 400 14px/1.2 var(--text);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.btn:hover { background: #fff; color: var(--red); }
+
+/* ---------- Section title band (EARLY MUSIC, BIO, NEWS...) ---------- */
+.band {
+  position: relative;
+  z-index: 2;
+  background: #fff;
+  text-align: center;
+  padding: 32px var(--gutter) 34px;
+  box-shadow: 0 6px 8px -4px rgba(0, 0, 0, 0.45);
+}
+.band h2 { font-size: clamp(30px, 4.2vw, 45px); color: var(--ink); }
+
+/* ---------- Rich text ---------- */
+.prose { color: var(--gray); font-size: 15px; line-height: 1.75; }
+.prose.lg { font-size: 17px; }
+.prose.ink { color: var(--ink); }
+.prose.justify p { text-align: justify; }
+.prose h2, .prose h3 { color: var(--ink); font-weight: 400; line-height: 1.3; }
+.prose h2 { font-size: 24px; margin: 1.6em 0 0.6em; }
+.prose h3 { font-size: 19px; margin: 1.4em 0 0.5em; }
+.prose a { color: var(--accent); }
+.prose figure { margin: 2em 0; }
+.prose figcaption { font-size: 13px; color: var(--gray); text-align: center; margin-top: 8px; }
+.prose ul, .prose ol { padding-left: 1.3em; margin: 0 0 1em; }
+.prose blockquote { margin: 1.5em 0; padding-left: 1em; border-left: 3px solid var(--accent); font-style: italic; }
+
+.video {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #000;
+}
+.video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+}

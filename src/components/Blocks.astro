@@ -1,0 +1,230 @@
+---
+import Img from './Img.astro';
+import Band from './Band.astro';
+import Video from './Video.astro';
+import Gallery from './Gallery.astro';
+import AudioPlayer from './AudioPlayer.astro';
+import { md, mdInline, lines } from '../lib/md';
+import { getImg } from '../lib/images';
+import { getImage } from 'astro:assets';
+import type { Lang } from '../data/site';
+
+interface Props { blocks: Record<string, any>[]; lang: Lang; body?: string }
+const { blocks, lang, body = '' } = Astro.props;
+
+async function bg(name?: string) {
+  if (!name) return '';
+  const meta = getImg(name)!;
+  const out = await getImage({ src: meta, width: Math.min(2000, meta.width), format: 'webp', quality: 72 });
+  return `url(${out.src})`;
+}
+const backgrounds: Record<number, string> = {};
+for (const [i, b] of blocks.entries()) {
+  if (b.type === 'hero') backgrounds[i] = await bg(b.image);
+  if (b.type === 'biocard') backgrounds[i] = await bg(b.hero);
+  if (b.type === 'quotes') backgrounds[i] = await bg(b.background);
+}
+---
+{blocks.map((b, i) => {
+  switch (b.type) {
+    case 'hero':
+      return (
+        <section class="p-hero" style={`--bg:${backgrounds[i]};--op:${b.opacity ?? 1}`}>
+          <div class="wrap">
+            <h1 class="display p-title" set:html={lines(b.title)} />
+            {b.subtitle && <p class="display p-sub" set:html={lines(b.subtitle)} />}
+            {b.intro && <div class="prose lg ink p-intro" set:html={md(b.intro)} />}
+          </div>
+        </section>
+      );
+    case 'biocard':
+      return (
+        <section class="bio-top">
+          <div class="bio-hero" style={`--bg:${backgrounds[i]}`}></div>
+          <div class="wrap">
+            <div class="bio-card">
+              <div class="bio-img"><Img src={b.image} alt={b.title} sizes="(max-width: 760px) 100vw, 490px" loading="eager" /></div>
+              <div class="bio-txt">
+                <h1 class="display">{b.title}</h1>
+                {b.tagline && <p class="tagline">{b.tagline}</p>}
+                <div class="prose lg ink" set:html={md(b.text)} />
+              </div>
+            </div>
+          </div>
+        </section>
+      );
+    case 'heading':
+      return b.style === 'raleway' ? (
+        <div class="wrap narrow"><h2 class="h-raleway">{b.text}</h2></div>
+      ) : (
+        <div class="wrap narrow center h-block">
+          {b.sub && <p class="h-label">{b.sub}</p>}
+          <h2 class="display h-display">{b.text}</h2>
+        </div>
+      );
+    case 'band':
+      return <Band text={b.text} id={b.id} />;
+    case 'body':
+      return <div class="wrap narrow body-text prose justify" set:html={body} />;
+    case 'info':
+      return (
+        <section class="wrap narrow info">
+          <h2 class="h-raleway">{b.title}</h2>
+          {b.rows.map((r: any) => (
+            <div class="info-row">
+              <h3>{r.label}</h3>
+              <div class="prose" set:html={md(r.text)} />
+            </div>
+          ))}
+        </section>
+      );
+    case 'text':
+      return <div class="wrap narrow prose justify" set:html={md(b.text)} />;
+    case 'note':
+      return <div class={`wrap narrow center mono ${b.color === 'red' ? 'red' : ''}`} set:html={md(b.text)} />;
+    case 'cast':
+      return (
+        <div class="wrap narrow center cast">
+          <h2>{b.title}</h2>
+          <div class="prose" set:html={md(b.text)} />
+        </div>
+      );
+    case 'image':
+      return (
+        <figure class:list={["wrap fig", { "tone-red": b.tone === "red" }]}>
+          <Img src={b.src} alt={b.alt ?? ''} sizes="(max-width: 1012px) 100vw, 980px" />
+          {b.caption && <figcaption class={`mono ${b.captionColor === 'red' ? 'red' : ''}`} set:html={md(b.caption)} />}
+        </figure>
+      );
+    case 'audio':
+      return (
+        <div class="wrap block-audio">
+          <AudioPlayer album={b.album} lang={lang} />
+          {b.caption && <div class={`mono center cap ${b.captionColor === 'red' ? 'red' : ''}`} set:html={md(b.caption)} />}
+        </div>
+      );
+    case 'video':
+      return (
+        <div class:list={["block-video", { "tone-red": b.tone === "red" }]}>
+          {b.heading && <div class="wrap narrow center h-block"><h2 class="display h-display">{b.heading}</h2></div>}
+          <div class="wrap">
+            <Video id={b.youtube} title={b.title} />
+            {(b.title || b.caption) && (
+              <div class="video-cap center">
+                {b.title && <h3>{b.title}</h3>}
+                {b.caption && <div class="mono" set:html={md(b.caption)} />}
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    case 'gallery':
+      return (
+        <section class:list={["block-gallery", { "tone-red": b.tone === "red" }]}>
+          {(b.title || b.label) && (
+            <div class="wrap narrow center h-block">
+              {b.label && <p class="h-label">{b.label}</p>}
+              {b.title && <h2 class="display h-display">{b.title}</h2>}
+            </div>
+          )}
+          <div class={b.layout === 'free' && b.width > 1100 ? '' : 'wrap'}>
+            <Gallery layout={b.layout} rows={b.rows} items={b.items} width={b.width} height={b.height} />
+          </div>
+        </section>
+      );
+    case 'quotes':
+      return (
+        <section class="quotes" style={`--bg:${backgrounds[i]}`}>
+          <div class="wrap narrow quotes-inner prose" set:html={body} />
+        </section>
+      );
+    default:
+      return null;
+  }
+})}
+
+<style>
+  .narrow { max-width: calc(800px + 2 * var(--gutter)); }
+  .center { text-align: center; }
+  .mono { font-family: var(--mono); font-size: 14px; line-height: 1.5; color: var(--ink); }
+  .mono.red { color: var(--accent); }
+  .mono :global(p) { margin: 0; }
+
+  /* Program hero */
+  .p-hero {
+    position: relative;
+    padding: 70px 0 56px;
+    text-align: center;
+    background: #fff;
+    isolation: isolate;
+  }
+  .p-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--bg) center / cover no-repeat;
+    opacity: var(--op);
+  }
+  .p-title { font-size: clamp(34px, 5.4vw, 56px); color: var(--ink); }
+  .p-sub { font-size: clamp(17px, 2vw, 22px); color: var(--ink); margin-top: 6px; }
+  .p-intro { max-width: 564px; margin: 34px auto 0; text-align: center; }
+
+  /* Bio card */
+  .bio-top { position: relative; padding-bottom: 50px; }
+  .bio-hero { height: 446px; background: #e2e2e2; position: relative; }
+  .bio-hero::before { content: ''; position: absolute; inset: 0; background: var(--bg) center / cover no-repeat; opacity: 0.37; }
+  .bio-card {
+    position: relative;
+    margin-top: -256px;
+    background: #fff;
+    display: grid;
+    grid-template-columns: 490px 1fr;
+    min-height: 580px;
+  }
+  .bio-img :global(img) { width: 100%; height: 100%; object-fit: cover; }
+  .bio-txt { padding: 38px 20px 40px 64px; }
+  .bio-txt h1 { font-size: 35px; color: var(--ink); }
+  .tagline { font-size: 18px; color: var(--gray); margin: 12px 0 18px; }
+  .h-raleway { font: 400 38px/1.2 var(--text); color: var(--ink); margin: 56px 0 36px; }
+
+  .h-block { padding-top: 40px; margin-bottom: 30px; }
+  .h-label { font-size: 17px; color: var(--ink); margin: 0 0 4px; }
+  .h-display { font-size: clamp(34px, 5vw, 56px); color: var(--ink); }
+
+  .body-text, .prose.justify { margin-block: 32px; }
+  .cast { margin-block: 20px 34px; }
+  .cast h2 { font: 400 17px/1.8 var(--text); letter-spacing: 0.3em; color: var(--ink); margin: 0 0 1.4em; }
+  .cast .prose { color: var(--gray); }
+  .cast :global(p) { margin: 0; }
+
+  .info { padding-bottom: 40px; }
+  .info-row { display: grid; grid-template-columns: 233px 1fr; gap: 0 167px; padding: 34px 12px; border-top: 1px solid #d8d8d8; }
+  .info-row h3 { font: 400 16px/1.4 var(--text); color: var(--gray); margin: 0; }
+  .info-row .prose :global(p) { margin: 0 0 0.8em; }
+  .fig { margin-block: 20px; }
+  .fig figcaption { text-align: center; margin-top: 14px; }
+  .block-audio { margin-block: 30px; }
+  .cap { margin-top: 18px; }
+  .block-video { margin-block: 40px; }
+  .video-cap { margin-top: 14px; }
+  .video-cap h3 { font: 400 16px/1.6 var(--text); letter-spacing: 0.2em; color: var(--ink); margin: 0; }
+  .block-gallery { padding-bottom: 60px; }
+  .tone-red { background: var(--red); box-shadow: 0 0 0 100vmax var(--red); clip-path: inset(0 -100vmax); margin-block: 0; padding-block: 30px; }
+  .tone-red .video-cap h3, .tone-red .mono, .tone-red .h-display { color: #fff; }
+
+  .quotes { position: relative; background: var(--red); padding: 48px 0 60px; isolation: isolate; }
+  .quotes::before { content: ''; position: absolute; inset: 0; z-index: -1; background: var(--bg) center / cover no-repeat; }
+  .quotes-inner { color: #fff; font-size: 15px; text-align: justify; max-width: calc(866px + 2 * var(--gutter)); }
+  .quotes-inner :global(p) { margin-bottom: 1.6em; }
+
+  @media (max-width: 860px) {
+    .info-row { grid-template-columns: 1fr; gap: 12px; padding: 24px 0; }
+    .bio-hero { height: 260px; }
+    .bio-card { grid-template-columns: 1fr; margin-top: -160px; }
+    .bio-img { max-height: 520px; overflow: hidden; }
+    .bio-txt { padding: 28px 8px 10px; }
+    .h-raleway { font-size: 30px; margin: 40px 0 24px; }
+    .p-hero { padding: 48px 0 40px; }
+  }
+</style>

@@ -1,0 +1,72 @@
+---
+import Img from './Img.astro';
+import { getImage } from 'astro:assets';
+import { getImg } from '../lib/images';
+
+type Item = { src: string; w: number; h: number; x?: number; y?: number; alt?: string };
+interface Props {
+  layout: 'rows' | 'free';
+  rows?: Item[][];
+  items?: Item[];
+  width?: number;
+  height?: number;
+  /** full-bleed gallery (edge to edge) */
+  wide?: boolean;
+}
+const { layout, rows = [], items = [], width = 980, height = 0, wide = false } = Astro.props;
+const all = layout === 'rows' ? rows.flat() : items;
+const rowsWidth = Math.max(0, ...rows.map((r) => r.reduce((s, i) => s + i.w, 0)));
+const full = width > 1100 || rowsWidth > 1100 || wide;
+const big: Record<string, string> = {};
+for (const it of all) {
+  const meta = getImg(it.src)!;
+  big[it.src] = (await getImage({ src: meta, width: Math.min(1800, meta.width), format: 'webp', quality: 82 })).src;
+}
+---
+<div class:list={['gallery', `g-${layout}`, { full }]} data-lightbox>
+  {layout === 'rows' && rows.map((row) => (
+    <div class:list={['g-row', { multi: row.length > 2 }]}>
+      {row.map((it) => (
+        <a href={big[it.src]} class="g-item" style={`flex:${(it.w / it.h).toFixed(4)} 1 0;aspect-ratio:${it.w}/${it.h}`}>
+          <Img src={it.src} alt={it.alt ?? ''} sizes={`(max-width: 1000px) 100vw, ${Math.round((it.w / (full ? 1265 : 980)) * 100)}vw`} />
+        </a>
+      ))}
+    </div>
+  ))}
+  {layout === 'free' && (
+    <div class="g-canvas" style={`aspect-ratio:${width}/${height}`}>
+      {items.map((it) => (
+        <a
+          href={big[it.src]}
+          class="g-item"
+
+          style={`left:${((it.x! / width) * 100).toFixed(3)}%;top:${((it.y! / height) * 100).toFixed(3)}%;width:${((it.w / width) * 100).toFixed(3)}%;height:${((it.h / height) * 100).toFixed(3)}%;--ar:${it.w}/${it.h}`}
+        >
+          <Img src={it.src} alt={it.alt ?? ''} sizes={`(max-width: 760px) 50vw, ${Math.ceil((it.w / 1265) * 100)}vw`} />
+        </a>
+      ))}
+    </div>
+  )}
+</div>
+
+<style>
+  .gallery { margin: 0 auto; max-width: var(--wrap); }
+  .gallery.full { max-width: none; }
+  .g-item { display: block; overflow: hidden; background: #eee; cursor: zoom-in; }
+  .g-item :global(img) { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease; }
+  .g-item:hover :global(img) { transform: scale(1.03); }
+
+  .g-row { display: flex; gap: 15px; margin-bottom: 15px; }
+  .full .g-row { gap: 15px; }
+
+  .g-canvas { position: relative; width: 100%; }
+  .g-canvas .g-item { position: absolute; }
+
+  @media (max-width: 760px) {
+    .g-row.multi { flex-wrap: wrap; }
+    .g-row.multi .g-item { flex: 1 1 calc(50% - 8px) !important; }
+    .g-row { gap: 8px; margin-bottom: 8px; }
+    .g-canvas { aspect-ratio: auto !important; columns: 2; column-gap: 8px; }
+    .g-canvas .g-item { position: static; width: 100% !important; height: auto !important; aspect-ratio: var(--ar); margin-bottom: 8px; break-inside: avoid; }
+  }
+</style>

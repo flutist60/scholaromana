@@ -1,0 +1,17 @@
+---
+import { categories } from '../lib/blog';
+import { localize, ui, type Lang } from '../data/site';
+interface Props { lang: Lang; current?: string }
+const { lang, current = 'all' } = Astro.props;
+---
+<nav class="blog-nav wrap" aria-label="Blog">
+  <a href={localize('/blog', lang)} class:list={{ on: current === 'all' }}>{ui[lang].allPosts}</a>
+  {Object.entries(categories).map(([k, v]) => (
+    <a href={localize(`/blog/categories/${k}`, lang)} class:list={{ on: current === k }}>{v[lang]}</a>
+  ))}
+</nav>
+<style>
+  .blog-nav { display: flex; flex-wrap: wrap; gap: 8px 40px; padding-top: 30px; padding-bottom: 20px; font-size: 15px; }
+  .blog-nav a { color: var(--ink); text-decoration: none; }
+  .blog-nav a:hover, .blog-nav a.on { color: var(--accent); }
+</style>

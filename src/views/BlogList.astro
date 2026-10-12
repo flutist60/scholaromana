@@ -1,0 +1,33 @@
+---
+import Base from '../layouts/Base.astro';
+import BlogNav from '../components/BlogNav.astro';
+import PostCard from '../components/PostCard.astro';
+import { getPosts, categories } from '../lib/blog';
+import { ui, type Lang } from '../data/site';
+interface Props { lang: Lang; category?: keyof typeof categories }
+const { lang, category } = Astro.props;
+const all = await getPosts(lang);
+const posts = category ? all.filter((p) => p.data.category === category) : all;
+const t = ui[lang];
+const title = category ? `${categories[category][lang]} | Blog | Schola Romana` : 'Blog | Schola Romana';
+---
+<Base lang={lang} title={title} description={lang === 'it' ? 'Blog dello Schola Romana Ensemble: musica antica e contemporanea' : 'Schola Romana Ensemble blog: early and contemporary music'}>
+  <div class="blog">
+    <BlogNav lang={lang} current={category ?? 'all'} />
+    <div class="wrap list">
+      <h1 class="visually-hidden">Blog</h1>
+      {posts.length ? posts.map((p) => <PostCard post={p} lang={lang} />) : (
+        <div class="empty">
+          <p class="e1">{t.noPosts}</p>
+          <p>{t.noPostsHint}</p>
+        </div>
+      )}
+    </div>
+  </div>
+</Base>
+<style>
+  .blog { background: #f6f6f6; padding-bottom: 60px; min-height: 60vh; }
+  .list { padding-top: 10px; }
+  .empty { background: #fff; border: 1px solid #e3e3e3; padding: 80px 20px; text-align: center; color: var(--gray); }
+  .e1 { font-size: 24px; color: var(--ink); }
+</style>

@@ -1,0 +1,365 @@
+---
+import Base from '../layouts/Base.astro';
+import Band from '../components/Band.astro';
+import Img from '../components/Img.astro';
+import SocialIcons from '../components/SocialIcons.astro';
+import { getImage } from 'astro:assets';
+import { getImg } from '../lib/images';
+import { md, mdInline, lines } from '../lib/md';
+import { contacts, localize, ui, web3formsKey, type Lang } from '../data/site';
+
+interface Props { lang: Lang; data: any }
+const { lang, data: d } = Astro.props;
+const t = ui[lang];
+const L = (p: string) => localize(p, lang);
+
+async function bg(name: string, width = 2400) {
+  const meta = getImg(name)!;
+  return `url(${(await getImage({ src: meta, width: Math.min(width, meta.width), format: 'webp', quality: 72 })).src})`;
+}
+const bgs = {
+  hero: await bg(d.heroImage),
+  early: await bg(d.backgrounds.early),
+  contemporary: await bg(d.backgrounds.contemporary),
+  stefano: await bg(d.backgrounds.stefano),
+  press: await bg(d.backgrounds.press),
+};
+const more = lang === 'it' ? 'Scopri' : 'More';
+---
+<Base lang={lang} title={d.seoTitle} description={d.description} image={undefined}>
+  <!-- HERO -->
+  <section class="hero fixed-bg" style={`--bg:${bgs.hero}`}>
+    <h1 class="visually-hidden">Schola Romana Ensemble</h1>
+    <Img src={d.logo} alt="Schola Romana Ensemble" class="hero-logo" widths={[300, 600]} sizes="276px" loading="eager" />
+  </section>
+
+  <!-- EARLY MUSIC -->
+  <Band text={d.headings.early} id="early-music" />
+  <section class="cards-section fixed-bg early" style={`--bg:${bgs.early}`}>
+    <div class="cards">
+      {d.cards.early.map((c: any) => (
+        <a class="card" href={L(c.href)}>
+          <div class="card-txt">
+            <p class="kicker" set:html={lines(c.kicker)} />
+            <h3 class="display" set:html={lines(c.title)} />
+            <p class="type">{c.type}</p>
+            <span class="more">{more}</span>
+          </div>
+          <div class="card-img"><Img src={c.image} alt="" sizes="(max-width: 700px) 60vw, 283px" widths={[300, 600]} /></div>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <!-- CONTEMPORARY MUSIC -->
+  <Band text={d.headings.contemporary} id="contemporary-music" />
+  <section class="cards-section fixed-bg contemporary" style={`--bg:${bgs.contemporary}`}>
+    <div class="cards">
+      {d.cards.contemporary.map((c: any) => (
+        <a class="card" href={L(c.href)}>
+          <div class="card-txt">
+            <p class="kicker" set:html={lines(c.kicker)} />
+            <h3 class="display" set:html={lines(c.title)} />
+            <p class="type">{c.type}</p>
+            <span class="more">{more}</span>
+          </div>
+          <div class="card-img"><Img src={c.image} alt="" sizes="(max-width: 700px) 60vw, 283px" widths={[300, 600]} /></div>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <!-- BIO -->
+  <Band text={d.headings.bio} id="bio" />
+  <section class="ensemble">
+    <div class="wrap two">
+      <div class="col-txt">
+        <p class="quote" set:html={lines(d.ensemble.quote)} />
+        <h2 class="display">{d.ensemble.title}</h2>
+        <div class="prose lg" set:html={md(d.ensemble.text)} />
+        <p class="btn-row"><a class="btn" href={L(d.ensemble.href)}>{d.ensemble.button}</a></p>
+      </div>
+      <div class="col-img"><Img src={d.backgrounds.ensemble} alt="Schola Romana Ensemble" sizes="(max-width: 860px) 100vw, 447px" widths={[450, 900]} /></div>
+    </div>
+  </section>
+  <section class="stefano fixed-bg" style={`--bg:${bgs.stefano}`}>
+    <div class="wrap">
+      <div class="col-txt">
+        <h2 class="display">{d.stefano.title}</h2>
+        <div class="prose justify" set:html={md(d.stefano.text)} />
+        <p class="btn-row"><a class="btn" href={L(d.stefano.href)}>{d.stefano.button}</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- NEWS -->
+  <Band text={d.headings.news} id="news" />
+  <section class="news" aria-roledescription="carousel">
+    <div class="wrap news-inner">
+      <button class="nav prev" aria-label="Previous">
+        <svg viewBox="0 0 24 24" width="22" height="22"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="1.5" /></svg>
+      </button>
+      <div class="slides">
+        {d.news.map((s: any, n: number) => (
+          <div class:list={['slide', { on: n === 0 }]} aria-hidden={n === 0 ? 'false' : 'true'}>
+            <div class="slide-txt" set:html={md(s.text)} />
+            <div class="slide-img"><Img src={s.image} alt="" sizes="255px" widths={[300, 600]} /></div>
+          </div>
+        ))}
+      </div>
+      <button class="nav next" aria-label="Next">
+        <svg viewBox="0 0 24 24" width="22" height="22"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="1.5" /></svg>
+      </button>
+      <div class="dots">
+        {d.news.map((_: any, n: number) => <button class:list={{ on: n === 0 }} aria-label={`${n + 1}`}></button>)}
+      </div>
+    </div>
+  </section>
+  <section class="concerts">
+    <div class="c-title"><h2 class="display">{d.headings.concerts}</h2></div>
+    <div class="c-body">
+      <p class="c-label">{d.concerts.label}</p>
+      <div class="ticker"><div class="ticker-track"><span>{d.concerts.ticker}</span><span aria-hidden="true">{d.concerts.ticker}</span></div></div>
+      <a class="c-more" href={L(d.concerts.moreHref)}>{d.concerts.more}</a>
+    </div>
+  </section>
+
+  <!-- PRESS -->
+  <Band text={d.headings.press} id="press" />
+  <section class="press fixed-bg" style={`--bg:${bgs.press}`}>
+    <div class="wrap">
+      <div class="press-box">
+        <div class="q q1" set:html={lines(d.press.quotes[0])} />
+        <div class="q q2">
+          <div set:html={lines(d.press.quotes[1])} />
+          <p class="btn-row"><a class="btn" href={L(d.press.href)}>{d.press.button}</a></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACTS -->
+  <Band text={d.headings.contacts} id="contacts" />
+  <section class="contacts">
+    <div class="wrap contacts-inner">
+      <div class="ct-img"><Img src={d.contactImage} alt="" sizes="(max-width: 860px) 100vw, 327px" widths={[400, 800]} /></div>
+      <div class="ct-body">
+        <Img src={d.contactLogo} alt="Schola Romana Ensemble" class="ct-logo" widths={[300, 600]} sizes="260px" />
+        <div class="ct-info">
+          <div><p class="lbl">{t.phone}</p><p><a href={contacts.whatsapp} target="_blank" rel="noopener">{contacts.phone}</a></p></div>
+          <div><p class="lbl">{t.email}</p><p><a href={`mailto:${contacts.email}`}>{contacts.email}</a></p></div>
+          <div><p class="lbl">{t.social}</p><SocialIcons size={24} /></div>
+        </div>
+        <form class="ct-form" method="post" action="https://api.web3forms.com/submit" data-key={web3formsKey} data-mail={contacts.email}>
+          <input type="hidden" name="access_key" value={web3formsKey} />
+          <input type="hidden" name="subject" value="Messaggio dal sito scholaromana.it" />
+          <input type="checkbox" name="botcheck" class="visually-hidden" tabindex="-1" autocomplete="off" />
+          <label class="f-email">{t.form.email} <span class="req">*</span><input type="email" name="email" required autocomplete="email" /></label>
+          <label class="f-msg">{t.form.message}<textarea name="message" rows="4" required></textarea></label>
+          <div class="f-foot">
+            <p class="f-status" role="status" data-ok={t.form.thanks} data-err={t.form.error}></p>
+            <button class="btn" type="submit">{t.form.send}</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- COLLABORATIONS -->
+  <Band text={d.headings.collaborations} />
+  <section class="collab" aria-label={d.headings.collaborations}>
+    <div class="logos">
+      <div class="logos-track">
+        {[...d.collaborations, ...d.collaborations].map((c: any, n: number) => (
+          <div class="logo" aria-hidden={n >= d.collaborations.length ? 'true' : undefined}>
+            <Img src={c.image} alt={n >= d.collaborations.length ? '' : c.name} title={c.name} sizes="95px" widths={[200]} />
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+  <div class="spacer"></div>
+</Base>
+
+<script>
+  // News slideshow
+  const root = document.querySelector<HTMLElement>('.news');
+  if (root) {
+    const slides = [...root.querySelectorAll<HTMLElement>('.slide')];
+    const dots = [...root.querySelectorAll<HTMLButtonElement>('.dots button')];
+    let i = 0;
+    let timer: number | undefined;
+    const go = (n: number) => {
+      i = (n + slides.length) % slides.length;
+      slides.forEach((s, k) => { s.classList.toggle('on', k === i); s.setAttribute('aria-hidden', String(k !== i)); });
+      dots.forEach((d, k) => d.classList.toggle('on', k === i));
+    };
+    const auto = () => { clearInterval(timer); timer = window.setInterval(() => go(i + 1), 6000); };
+    root.querySelector('.prev')?.addEventListener('click', () => { go(i - 1); auto(); });
+    root.querySelector('.next')?.addEventListener('click', () => { go(i + 1); auto(); });
+    dots.forEach((d, k) => d.addEventListener('click', () => { go(k); auto(); }));
+    let x0 = 0;
+    root.addEventListener('touchstart', (e) => { x0 = e.touches[0].clientX; }, { passive: true });
+    root.addEventListener('touchend', (e) => { const dx = e.changedTouches[0].clientX - x0; if (Math.abs(dx) > 40) { go(i + (dx < 0 ? 1 : -1)); auto(); } });
+    auto();
+  }
+
+  // Contact form: Web3Forms if a key is configured, otherwise opens the mail client
+  const form = document.querySelector<HTMLFormElement>('.ct-form');
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const status = form.querySelector<HTMLElement>('.f-status')!;
+    const data = new FormData(form);
+    if (!form.dataset.key) {
+      const body = `${data.get('message')}\n\n— ${data.get('email')}`;
+      location.href = `mailto:${form.dataset.mail}?subject=${encodeURIComponent('Messaggio dal sito scholaromana.it')}&body=${encodeURIComponent(body)}`;
+      return;
+    }
+    try {
+      const r = await fetch(form.action, { method: 'POST', body: data, headers: { Accept: 'application/json' } });
+      if (!r.ok) throw new Error();
+      form.reset();
+      status.textContent = status.dataset.ok!;
+    } catch {
+      status.textContent = status.dataset.err!;
+    }
+  });
+</script>
+
+<style>
+  /* parallax-like fixed backgrounds (as on the original site) */
+  .fixed-bg { position: relative; background: #2e2e2e var(--bg) center / cover no-repeat fixed; }
+  @supports (-webkit-touch-callout: none) { .fixed-bg { background-attachment: scroll; } }
+
+  .hero { height: 829px; max-height: calc(100vh - 60px); min-height: 420px; display: flex; justify-content: center; align-items: flex-start; }
+  .hero :global(.hero-logo) { width: 276px; margin-top: 51px; filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.35)); }
+
+  /* program cards */
+  .cards-section.early { padding: 282px var(--gutter) 100px; }
+  .cards-section.contemporary { padding: 179px var(--gutter) 166px; }
+  .cards { max-width: calc(980px + 2 * var(--gutter)); margin: 0 auto; display: grid; grid-template-columns: repeat(2, minmax(0, 474px)); justify-content: center; gap: 30px 33px; }
+  .card { display: grid; grid-template-columns: 191px 1fr; min-height: 337px; text-decoration: none; color: #fff; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35); }
+  .card-txt { background: var(--red-card); padding: 19px 14px 16px 28px; display: flex; flex-direction: column; }
+  .kicker { font-weight: 600; font-size: 14px; line-height: 1.25; margin: 0; }
+  .card h3 { font-size: 20px; line-height: 1.3; margin: auto 0 16px; padding-top: 60px; color: #fff; }
+  .type { font-size: 14px; margin: 0; }
+  .more { margin-top: auto; padding-top: 18px; font-size: 13px; text-decoration: underline; text-underline-offset: 3px; opacity: 0.85; }
+  .card-img { overflow: hidden; }
+  .card-img :global(img) { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s; }
+  .card:hover .card-img :global(img) { transform: scale(1.05); }
+  .card:hover .card-txt { background: var(--red); }
+
+  /* ensemble */
+  .ensemble { background: #000; color: #fff; padding: 58px 0 90px; }
+  .two { display: grid; grid-template-columns: 478px 447px; justify-content: space-between; gap: 40px; }
+  .quote { font-style: italic; font-size: 15px; text-align: center; margin-bottom: 40px; }
+  .ensemble h2 { font-size: 24px; text-align: center; margin-bottom: 18px; }
+  .ensemble .prose { color: #fff; text-align: justify; }
+  .col-img :global(img) { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 6px; }
+  .btn-row { text-align: center; margin-top: 46px; }
+
+  .stefano { min-height: 860px; padding: 110px 0 120px; background-color: #000; color: #fff; }
+  .stefano .col-txt { max-width: 478px; }
+  .stefano h2 { font-size: clamp(32px, 4vw, 45px); margin-bottom: 30px; }
+  .stefano .prose { color: #f1f1f1; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6); }
+
+  /* news */
+  .news { background: var(--red); color: #fff; }
+  .news-inner { position: relative; min-height: 433px; display: flex; align-items: center; padding-block: 40px 60px; }
+  .slides { position: relative; flex: 1; display: grid; }
+  .slide { grid-area: 1 / 1; display: grid; grid-template-columns: 326px 255px; justify-content: center; align-items: center; gap: 0 167px; opacity: 0; visibility: hidden; transition: opacity 0.6s, visibility 0.6s; }
+  .slide.on { opacity: 1; visibility: visible; }
+  .slide-txt { font-size: 19px; line-height: 1.6; color: #fff; }
+  .slide-txt :global(a) { color: #fff; }
+  .slide-img :global(img) { width: 255px; height: 255px; border-radius: 50%; object-fit: cover; background: #fff; }
+  .nav { position: absolute; top: 50%; transform: translateY(-50%); background: none; border: 0; color: #fff; cursor: pointer; padding: 10px; z-index: 2; }
+  .prev { left: 60px; }
+  .next { right: 60px; }
+  .dots { position: absolute; left: 0; right: 0; bottom: 26px; display: flex; justify-content: center; gap: 12px; }
+  .dots button { width: 6px; height: 6px; padding: 0; border: 0; background: rgba(255, 255, 255, 0.55); cursor: pointer; }
+  .dots button.on { background: #fff; }
+
+  .concerts { display: grid; grid-template-columns: 38.5% 1fr; min-height: 180px; }
+  .c-title { background: #616161; display: flex; align-items: center; justify-content: flex-end; padding: 20px 40px; }
+  .c-title h2 { color: #fff; font-size: clamp(30px, 4vw, 45px); }
+  .c-body { background: var(--red); color: #fff; padding: 18px 40px; display: flex; flex-direction: column; justify-content: center; gap: 10px; min-width: 0; }
+  .c-label, .c-more { font-size: 16px; margin: 0; color: #fff; }
+  .ticker { overflow: hidden; white-space: nowrap; }
+  .ticker-track { display: inline-flex; animation: tick 70s linear infinite; }
+  .ticker-track span { padding-right: 60px; font-size: 16px; }
+  .ticker:hover .ticker-track { animation-play-state: paused; }
+  @keyframes tick { to { transform: translateX(-50%); } }
+  @media (prefers-reduced-motion: reduce) { .ticker-track, .logos-track { animation: none; } .ticker { white-space: normal; } .ticker-track span + span { display: none; } }
+
+  /* press */
+  .press { padding: 316px 0 82px; }
+  .press-box { background: rgba(255, 255, 255, 0.8); display: grid; grid-template-columns: 340px 465px; justify-content: space-between; gap: 40px; padding: 40px 58px; color: #000; font-size: 15px; line-height: 1.6; text-align: justify; }
+
+  /* contacts */
+  .contacts { padding: 47px 0 49px; }
+  .contacts-inner { display: grid; grid-template-columns: 327px 1fr; gap: 59px; }
+  .ct-img :global(img) { width: 100%; height: 491px; object-fit: cover; border-radius: 6px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3); }
+  .ct-body :global(.ct-logo) { width: 260px; }
+  .ct-info { display: grid; grid-template-columns: 175px 1fr auto; gap: 20px; margin: 42px 0 50px; font-size: 13px; }
+  .ct-info p { margin: 0 0 8px; }
+  .ct-info .lbl { color: var(--ink); }
+  .ct-info a { color: var(--gray); text-decoration: none; }
+  .ct-info a:hover { color: var(--accent); }
+  .ct-form { display: grid; gap: 14px; font-size: 13px; color: var(--gray); }
+  .ct-form label { display: grid; gap: 4px; }
+  .req { color: var(--accent); }
+  .ct-form input, .ct-form textarea { font: 400 14px var(--text); padding: 8px 10px; border: 1px solid #b7633b; border-radius: 0; background: #fff; color: var(--ink); }
+  .ct-form input:focus, .ct-form textarea:focus { outline: 2px solid var(--accent); outline-offset: 0; }
+  .f-email input { max-width: 300px; }
+  .f-foot { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+  .f-foot .btn { min-width: 250px; min-height: 36px; }
+  .f-status { margin: 0; font-size: 14px; color: var(--ink); }
+
+  /* collaborations */
+  .collab { padding: 63px 0 27px; overflow: hidden; }
+  .logos { overflow: hidden; }
+  .logos-track { display: flex; gap: 19px; width: max-content; animation: tick 50s linear infinite; }
+  .logos:hover .logos-track { animation-play-state: paused; }
+  .logo { width: 95px; height: 95px; flex: none; }
+  .logo :global(img) { width: 100%; height: 100%; object-fit: contain; }
+  .spacer { height: 66px; }
+
+  @media (max-width: 1100px) {
+    .two { grid-template-columns: 1fr 1fr; }
+    .press-box { grid-template-columns: 1fr 1fr; padding: 0 32px 32px; }
+    .slide { gap: 0 60px; grid-template-columns: minmax(0, 326px) 220px; }
+    .slide-img :global(img) { width: 220px; height: 220px; }
+    .prev { left: 0; } .next { right: 0; }
+  }
+  @media (max-width: 860px) {
+    .hero { height: 70vh; }
+    .hero :global(.hero-logo) { width: 200px; }
+    .cards-section.early, .cards-section.contemporary { padding: 120px var(--gutter) 70px; }
+    .cards { grid-template-columns: minmax(0, 474px); }
+    .two { grid-template-columns: 1fr; }
+    .col-img { order: -1; max-width: 447px; }
+    .stefano { min-height: 0; padding: 70px 0 80px; }
+    .stefano .col-txt { max-width: none; background: rgba(0, 0, 0, 0.55); padding: 20px; margin-inline: calc(-1 * var(--gutter) + 4px); }
+    .slide { grid-template-columns: 1fr; justify-items: center; text-align: center; gap: 24px; padding: 0 36px; }
+    .slide-img { order: -1; }
+    .slide-img :global(img) { width: 180px; height: 180px; }
+    .news-inner { min-height: 0; padding-block: 36px 56px; }
+    .concerts { grid-template-columns: 1fr; }
+    .c-title { justify-content: center; }
+    .c-body { padding: 18px var(--gutter); }
+    .press { padding: 160px 0 50px; }
+    .press-box { grid-template-columns: 1fr; padding: 24px 20px; }
+    .contacts-inner { grid-template-columns: 1fr; gap: 32px; }
+    .ct-img { order: 2; }
+    .ct-img :global(img) { height: 320px; }
+    .ct-info { grid-template-columns: 1fr; gap: 10px; margin: 28px 0 32px; }
+    .f-foot { flex-direction: column-reverse; align-items: stretch; }
+    .f-foot .btn { min-width: 0; width: 100%; }
+    .f-email input { max-width: none; }
+  }
+  @media (max-width: 520px) {
+    .card { grid-template-columns: 46% 1fr; min-height: 280px; }
+    .card-txt { padding: 16px 12px 14px 16px; }
+    .card h3 { padding-top: 30px; font-size: 18px; }
+  }
+</style>

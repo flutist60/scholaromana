@@ -1,0 +1,5 @@
+---
+interface Props { text: string; id?: string; as?: 'h1' | 'h2' }
+const { text, id, as: Tag = 'h2' } = Astro.props;
+---
+<div class="band" id={id}><Tag class="display">{text}</Tag></div>

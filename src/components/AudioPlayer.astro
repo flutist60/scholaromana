@@ -1,0 +1,133 @@
+---
+import albums from '../data/albums.json';
+import Img from './Img.astro';
+import type { Lang } from '../data/site';
+
+interface Props { album: string; lang: Lang }
+const { album, lang } = Astro.props;
+const a = (albums as Record<string, any>)[album];
+if (!a) throw new Error(`Unknown album ${album}`);
+---
+<div class="player" data-player>
+  <div class="cover">
+    <Img src={a.cover} alt={a.title} widths={[300, 600]} sizes="(max-width: 700px) 100vw, 300px" />
+  </div>
+  <div class="body">
+    <p class="artist">{a.artist}</p>
+    <h3 class="album">{a.title}</h3>
+    {a.details && <p class="details">{a.details}</p>}
+    <div class="now">
+      <button class="pp" type="button" aria-label={lang === 'it' ? 'Riproduci' : 'Play'}>
+        <svg class="i-play" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor" /></svg>
+        <svg class="i-pause" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M6 5h4v14H6zM14 5h4v14h-4z" fill="currentColor" /></svg>
+      </button>
+      <div class="meta">
+        <span class="np-title">{a.tracks[0].title}</span>
+        <div class="bar"><span class="fill"></span></div>
+      </div>
+      <span class="time">0:00 / {a.tracks[0].duration.replace(/^0/, '')}</span>
+    </div>
+    <ol class="tracks">
+      {a.tracks.map((t: any, n: number) => (
+        <li>
+          <button type="button" data-src={t.file} data-title={t.title} data-dur={t.duration} class:list={{ on: n === 0 }}>
+            <span class="n">{n + 1}</span>
+            <span class="t">{t.title}</span>
+            <span class="d">{t.duration.replace(/^0/, '')}</span>
+          </button>
+        </li>
+      ))}
+    </ol>
+    <audio preload="none" src={a.tracks[0].file}></audio>
+  </div>
+</div>
+
+<script>
+  const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+  document.querySelectorAll<HTMLElement>('[data-player]').forEach((p) => {
+    const audio = p.querySelector('audio')!;
+    const pp = p.querySelector<HTMLButtonElement>('.pp')!;
+    const fill = p.querySelector<HTMLElement>('.fill')!;
+    const bar = p.querySelector<HTMLElement>('.bar')!;
+    const time = p.querySelector<HTMLElement>('.time')!;
+    const title = p.querySelector<HTMLElement>('.np-title')!;
+    const btns = [...p.querySelectorAll<HTMLButtonElement>('.tracks button')];
+    let cur = 0;
+    const load = (n: number, play = true) => {
+      cur = n;
+      btns.forEach((b, k) => b.classList.toggle('on', k === n));
+      audio.src = btns[n].dataset.src!;
+      title.textContent = btns[n].dataset.title!;
+      if (play) audio.play();
+    };
+    btns.forEach((b, n) => b.addEventListener('click', () => (n === cur && !audio.paused ? audio.pause() : n === cur ? audio.play() : load(n))));
+    pp.addEventListener('click', () => (audio.paused ? audio.play() : audio.pause()));
+    audio.addEventListener('play', () => {
+      document.querySelectorAll('audio').forEach((o) => o !== audio && o.pause());
+      p.classList.add('playing');
+    });
+    audio.addEventListener('pause', () => p.classList.remove('playing'));
+    audio.addEventListener('timeupdate', () => {
+      const d = audio.duration || 0;
+      fill.style.width = d ? `${(audio.currentTime / d) * 100}%` : '0';
+      time.textContent = `${fmt(audio.currentTime)} / ${d ? fmt(d) : btns[cur].dataset.dur}`;
+    });
+    audio.addEventListener('ended', () => cur + 1 < btns.length && load(cur + 1));
+    bar.addEventListener('click', (e) => {
+      if (!audio.duration) return;
+      const r = bar.getBoundingClientRect();
+      audio.currentTime = ((e.clientX - r.left) / r.width) * audio.duration;
+    });
+  });
+</script>
+
+<style>
+  .player {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 28px;
+    background: #fff;
+    border: 1px solid #e3e3e3;
+    padding: 24px;
+    max-width: var(--wrap);
+    margin: 0 auto;
+    text-align: left;
+  }
+  .body { min-width: 0; }
+  .cover :global(img) { width: 100%; aspect-ratio: 1; object-fit: cover; }
+  .artist { margin: 0; font-size: 13px; color: var(--gray); text-transform: uppercase; letter-spacing: 0.12em; }
+  .album { margin: 4px 0 8px; font: 400 22px/1.3 var(--text); color: var(--ink); }
+  .details { font-size: 14px; color: var(--gray); margin-bottom: 14px; }
+  .now { display: flex; align-items: center; gap: 14px; padding: 10px 0 14px; border-bottom: 1px solid #e3e3e3; }
+  .pp { flex: none; width: 46px; height: 46px; border-radius: 50%; border: 0; background: var(--red); color: #fff; display: grid; place-items: center; cursor: pointer; }
+  .pp:hover { background: var(--accent); }
+  .i-pause, .playing .i-play { display: none; }
+  .playing .i-pause { display: block; }
+  .meta { flex: 1; min-width: 0; }
+  .np-title { display: block; font-size: 14px; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bar { height: 4px; background: #e6e6e6; margin-top: 8px; cursor: pointer; }
+  .fill { display: block; height: 100%; width: 0; background: var(--accent); }
+  .time { font-size: 12px; color: var(--gray); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .tracks { list-style: none; margin: 6px 0 0; padding: 0; }
+  .tracks button {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 28px 1fr auto;
+    gap: 8px;
+    align-items: center;
+    padding: 9px 4px;
+    border: 0;
+    border-bottom: 1px solid #f0f0f0;
+    background: none;
+    font: 400 14px/1.4 var(--text);
+    color: var(--ink);
+    text-align: left;
+    cursor: pointer;
+  }
+  .tracks button:hover, .tracks button.on { color: var(--accent); }
+  .n, .d { color: var(--gray); font-size: 13px; font-variant-numeric: tabular-nums; }
+  @media (max-width: 700px) {
+    .player { grid-template-columns: 1fr; padding: 16px; gap: 16px; }
+    .cover { max-width: 260px; }
+  }
+</style>

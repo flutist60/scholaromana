@@ -1,0 +1,109 @@
+{
+  "vox": {
+    "title": "Vox Aeternitatis - Hildegard von Bingen",
+    "artist": "Schola Romana Ensemble",
+    "cover": "album-vox.jpg",
+    "details": "The CD \"Vox Aeternitatis\" is currently being published by the Dutch label Brilliant Classics. Here are some preview excerpts.",
+    "tracks": [
+      {
+        "title": "O vis eternitatis",
+        "duration": "03:14",
+        "file": "/audio/vox-o-vis-eternitatis.mp3"
+      },
+      {
+        "title": "Laus Trinitati",
+        "duration": "01:16",
+        "file": "/audio/vox-laus-trinitati.mp3"
+      },
+      {
+        "title": "O pulcre facies",
+        "duration": "01:40",
+        "file": "/audio/vox-o-pulcre-facies.mp3"
+      },
+      {
+        "title": "Spiritus Sanctus",
+        "duration": "02:19",
+        "file": "/audio/vox-spiritus-sanctus.mp3"
+      }
+    ]
+  },
+  "canticum": {
+    "title": "Canticum Canticorum (Song of Songs)",
+    "artist": "Giovanni Pierluigi da Palestrina",
+    "cover": "album-canticum.jpg",
+    "details": "",
+    "tracks": [
+      {
+        "title": "Osculetur me",
+        "duration": "02:22",
+        "file": "/audio/canticum-osculetur-me.mp3"
+      },
+      {
+        "title": "Ecce tu pulcher es",
+        "duration": "02:12",
+        "file": "/audio/canticum-ecce-tu-pulcher-es.mp3"
+      }
+    ]
+  },
+  "radio-vaticana": {
+    "title": "Radio Vaticana",
+    "artist": "Schola Romana Ensemble",
+    "cover": "album-radio-vaticana.jpg",
+    "details": "The Schola Romana Ensemble presents the CD \"Apollo & Dafne: Music in the Rome of Bernini.\" Stefano Corato interviews Stefano Sabene. Among the tracks featured is the \"Miserere\" by Gregorio Allegri.",
+    "tracks": [
+      {
+        "title": "Stefano Sabene Interview 1",
+        "duration": "04:57",
+        "file": "/audio/radio-vaticana-stefano-sabene-interview-1.mp3"
+      },
+      {
+        "title": "Gregorio Allegri, Miserere",
+        "duration": "05:50",
+        "file": "/audio/radio-vaticana-gregorio-allegri-miserere.mp3"
+      },
+      {
+        "title": "Interview 2 - Alessandro Scarlatti, Miserere mei Deus",
+        "duration": "06:06",
+        "file": "/audio/radio-vaticana-interview-2-alessandro-scarlatti-miserere-mei-deus.mp3"
+      },
+      {
+        "title": "Athanasius Kircher, Tono hypodorio (instrumental)",
+        "duration": "03:08",
+        "file": "/audio/radio-vaticana-athanasius-kircher-tono-hypodorio-instrumental.mp3"
+      }
+    ]
+  },
+  "rai-radio3": {
+    "title": "RAI Radio 3 La stanza della musica",
+    "artist": "Schola Romana Ensemble",
+    "cover": "album-rai-radio3.jpg",
+    "details": "The Schola Romana Ensemble participated in a live RAI radio broadcast from Studio M. The program was hosted by musicologist Oreste Bossini, who interviewed Stefano Sabene. The broadcast featured sacred and secular Italian music from the 16th century.",
+    "tracks": [
+      {
+        "title": "Giovan Domenico da Nola, Cingari simo",
+        "duration": "02:30",
+        "file": "/audio/rai-radio3-giovan-domenico-da-nola-cingari-simo.mp3"
+      },
+      {
+        "title": "Stefano Sabene, interview 1",
+        "duration": "04:08",
+        "file": "/audio/rai-radio3-stefano-sabene-interview-1.mp3"
+      },
+      {
+        "title": "G. P. da Palestrina: Lamentazione",
+        "duration": "06:23",
+        "file": "/audio/rai-radio3-g-p-da-palestrina-lamentazione.mp3"
+      },
+      {
+        "title": "Stefano Sabene, interview 2",
+        "duration": "05:38",
+        "file": "/audio/rai-radio3-stefano-sabene-interview-2.mp3"
+      },
+      {
+        "title": "Adrian Willaert, Vecchie letrose",
+        "duration": "03:23",
+        "file": "/audio/rai-radio3-adrian-willaert-vecchie-letrose.mp3"
+      }
+    ]
+  }
+}

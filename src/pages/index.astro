@@ -1,0 +1,6 @@
+---
+import { getEntry } from 'astro:content';
+import Home from '../views/Home.astro';
+const entry = await getEntry('home', 'en');
+---
+<Home lang="en" data={entry!.data} />

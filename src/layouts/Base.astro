@@ -1,0 +1,62 @@
+---
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import { ui, localize, neutralPath, type Lang } from '../data/site';
+
+interface Props {
+  lang: Lang;
+  title: string;
+  description?: string;
+  /** explicit language alternates (needed when slugs differ between languages) */
+  alternates?: Partial<Record<Lang, string>>;
+  image?: string;
+}
+const { lang, title, description, image } = Astro.props;
+const neutral = neutralPath(Astro.url.pathname);
+const alternates: Record<Lang, string> = {
+  en: Astro.props.alternates?.en ?? localize(neutral, 'en'),
+  it: Astro.props.alternates?.it ?? localize(neutral, 'it'),
+};
+const site = Astro.site!;
+const canonical = new URL(Astro.url.pathname, site).href;
+---
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    {description && <meta name="description" content={description} />}
+    <link rel="canonical" href={canonical} />
+    <link rel="alternate" hreflang="en" href={new URL(alternates.en, site).href} />
+    <link rel="alternate" hreflang="it" href={new URL(alternates.it, site).href} />
+    <link rel="alternate" hreflang="x-default" href={new URL(alternates.en, site).href} />
+    <link rel="icon" href="/favicon.ico" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    {description && <meta property="og:description" content={description} />}
+    <meta property="og:url" content={canonical} />
+    {image && <meta property="og:image" content={new URL(image, site).href} />}
+    <meta property="og:locale" content={lang === 'it' ? 'it_IT' : 'en_US'} />
+  </head>
+  <body>
+    <Header lang={lang} alternates={alternates} />
+    <main>
+      <slot />
+    </main>
+    <footer class="site-footer">
+      <p>{ui[lang].footer}</p>
+    </footer>
+  </body>
+</html>
+
+<style>
+  .site-footer {
+    background: var(--red);
+    color: #fff;
+    text-align: center;
+    font-size: 13px;
+    padding: 36px var(--gutter) 38px;
+  }
+  .site-footer p { margin: 0; }
+</style>

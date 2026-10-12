@@ -1,0 +1,50 @@
+---
+import Base from '../layouts/Base.astro';
+import PostCard from '../components/PostCard.astro';
+import Img from '../components/Img.astro';
+import { getPosts } from '../lib/blog';
+import { localize, ui, type Lang } from '../data/site';
+interface Props { lang: Lang; tab: 'profile' | 'events' }
+const { lang, tab } = Astro.props;
+const t = ui[lang];
+const posts = await getPosts(lang);
+---
+<Base lang={lang} title={`Stefano Sabene | ${tab === 'profile' ? t.profile : t.events} | Schola Romana`}>
+  <div class="member">
+    <div class="wrap">
+      <header class="m-head">
+        <Img src="stefano-sabene-portrait.png" alt="Stefano Sabene" widths={[240]} sizes="110px" class="m-avatar" />
+        <div>
+          <h1>Stefano Sabene</h1>
+          <p><a href={localize('/stefano-sabene', lang)}>{lang === 'it' ? 'Biografia' : 'Biography'}</a></p>
+        </div>
+      </header>
+      <nav class="m-tabs">
+        <a href={localize('/members-area/stefano-sabene/profile', lang)} class:list={{ on: tab === 'profile' }}>{t.profile}</a>
+        <a href={localize('/members-area/stefano-sabene/events', lang)} class:list={{ on: tab === 'events' }}>{t.events}</a>
+      </nav>
+      {tab === 'profile' ? (
+        <div class="m-posts">{posts.map((p) => <PostCard post={p} lang={lang} compact />)}</div>
+      ) : (
+        <div class="m-empty">
+          <p>{t.noEvents}</p>
+          <a class="btn" href={localize('/#news', lang)}>{t.browseEvents}</a>
+        </div>
+      )}
+    </div>
+  </div>
+</Base>
+<style>
+  .member { background: #f6f6f6; padding: 40px 0 70px; min-height: 60vh; }
+  .m-head { background: #fff; border: 1px solid #e3e3e3; padding: 40px 54px; display: flex; gap: 30px; align-items: center; }
+  .m-head :global(.m-avatar) { width: 110px; height: 110px; border-radius: 50%; object-fit: cover; background: #ddd; }
+  .m-head h1 { font: 400 28px var(--text); margin: 0 0 6px; }
+  .m-head a { color: var(--accent); font-size: 14px; }
+  .m-tabs { display: flex; border: 1px solid #e3e3e3; border-top: 0; background: #fff; margin-bottom: 30px; }
+  .m-tabs a { padding: 15px 30px; color: var(--ink); text-decoration: none; font-size: 15px; }
+  .m-tabs a.on { background: #757575; color: #fff; }
+  .m-posts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+  .m-empty { background: #fff; border: 1px solid #e3e3e3; padding: 80px 20px; text-align: center; color: var(--gray); }
+  .m-empty .btn { background: var(--accent); border-color: var(--accent); min-width: 0; margin-top: 10px; }
+  @media (max-width: 860px) { .m-posts { grid-template-columns: 1fr; } .m-head { padding: 24px; } }
+</style>

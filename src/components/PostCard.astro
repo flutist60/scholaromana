@@ -1,0 +1,52 @@
+---
+import { Image } from 'astro:assets';
+import Img from './Img.astro';
+import { fmtDate, postUrl, type Post } from '../lib/blog';
+import { ui, localize, type Lang } from '../data/site';
+interface Props { post: Post; lang: Lang; compact?: boolean }
+const { post, lang, compact = false } = Astro.props;
+const d = post.data;
+const href = postUrl(post, lang);
+const t = ui[lang];
+---
+<article class:list={['post-card', { compact }]}>
+  <a href={href} class="pc-media" tabindex="-1" aria-hidden="true">
+    {d.coverYoutube ? (
+      <img src={`https://i.ytimg.com/vi/${d.coverYoutube}/hqdefault.jpg`} alt="" loading="lazy" width="480" height="360" />
+    ) : d.cover ? (
+      <Image src={d.cover} alt="" widths={[480, 960]} sizes="(max-width: 760px) 100vw, 454px" />
+    ) : null}
+  </a>
+  <div class="pc-body">
+    <p class="pc-meta">
+      <a href={localize('/members-area/stefano-sabene/profile', lang)} class="pc-author">
+        <Img src="stefano-sabene-portrait.png" alt="" widths={[80]} sizes="32px" class="avatar" />
+        {d.author}
+      </a>
+      <span>{fmtDate(d.date, lang)}{d.readingTime ? ` · ${d.readingTime} ${t.minRead}` : ''}</span>
+    </p>
+    <h2><a href={href}>{d.title}</a></h2>
+    {!compact && d.excerpt && <p class="pc-excerpt">{d.excerpt}</p>}
+  </div>
+</article>
+<style>
+  .post-card { display: grid; grid-template-columns: 454px 1fr; border: 1px solid #e3e3e3; background: #fff; margin-bottom: 32px; }
+  .pc-media { display: block; aspect-ratio: 454 / 341; overflow: hidden; background: #eee; }
+  .pc-media img, .pc-media :global(img) { width: 100%; height: 100%; object-fit: cover; }
+  .pc-body { padding: 26px 34px; display: flex; flex-direction: column; }
+  .pc-meta { display: flex; flex-direction: column; gap: 2px; font-size: 12px; color: var(--gray); margin: 0 0 22px; }
+  .pc-author { display: flex; align-items: center; gap: 10px; color: var(--ink); text-decoration: none; font-size: 13px; }
+  .pc-author :global(.avatar) { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; background: #ddd; }
+  .pc-meta span { padding-left: 42px; }
+  h2 { font: 400 24px/1.35 var(--text); margin: 0 0 14px; }
+  h2 a { color: var(--ink); text-decoration: none; }
+  h2 a:hover { color: var(--accent); }
+  .pc-excerpt { color: var(--gray); font-size: 15px; line-height: 1.6; }
+  .compact { grid-template-columns: 1fr; margin: 0; }
+  .compact .pc-body { padding: 18px 20px; }
+  .compact h2 { font-size: 17px; }
+  @media (max-width: 860px) {
+    .post-card { grid-template-columns: 1fr; }
+    .pc-body { padding: 20px; }
+  }
+</style>

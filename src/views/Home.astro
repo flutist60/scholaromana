@@ -228,8 +228,16 @@ const more = lang === 'it' ? 'Scopri' : 'More';
 
 <style>
   /* parallax-like fixed backgrounds (as on the original site) */
-  .fixed-bg { position: relative; background: #2e2e2e var(--bg) center / cover no-repeat fixed; }
-  @supports (-webkit-touch-callout: none) { .fixed-bg { background-attachment: scroll; } }
+  /* the image stays still while the page scrolls over it (works in every browser, iOS included) */
+  .fixed-bg { position: relative; isolation: isolate; clip-path: inset(0); background-color: #2e2e2e; }
+  .fixed-bg::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: var(--bg) center / cover no-repeat;
+    pointer-events: none;
+  }
 
   .hero { height: 829px; max-height: calc(100vh - 60px); min-height: 420px; display: flex; justify-content: center; align-items: flex-start; }
   .hero :global(.hero-logo) { width: 276px; margin-top: 51px; filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.35)); }
